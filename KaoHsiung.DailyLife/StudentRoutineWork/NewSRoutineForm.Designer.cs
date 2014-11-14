@@ -33,6 +33,7 @@
                this.btnSave = new DevComponents.DotNetBar.ButtonX();
                this.cbPrintUpdateStudentFile = new DevComponents.DotNetBar.Controls.CheckBoxX();
                this.cbPrintSaveFile = new DevComponents.DotNetBar.Controls.CheckBoxX();
+               this.labelX2 = new DevComponents.DotNetBar.LabelX();
                this.SuspendLayout();
                // 
                // labelX1
@@ -54,11 +55,12 @@
                // btnClose
                // 
                this.btnClose.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
+               this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
                this.btnClose.AutoSize = true;
                this.btnClose.BackColor = System.Drawing.Color.Transparent;
                this.btnClose.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
                this.btnClose.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
-               this.btnClose.Location = new System.Drawing.Point(317, 137);
+               this.btnClose.Location = new System.Drawing.Point(317, 160);
                this.btnClose.Name = "btnClose";
                this.btnClose.Size = new System.Drawing.Size(75, 25);
                this.btnClose.TabIndex = 4;
@@ -68,11 +70,12 @@
                // btnSave
                // 
                this.btnSave.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
+               this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
                this.btnSave.AutoSize = true;
                this.btnSave.BackColor = System.Drawing.Color.Transparent;
                this.btnSave.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
                this.btnSave.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
-               this.btnSave.Location = new System.Drawing.Point(236, 137);
+               this.btnSave.Location = new System.Drawing.Point(236, 160);
                this.btnSave.Name = "btnSave";
                this.btnSave.Size = new System.Drawing.Size(75, 25);
                this.btnSave.TabIndex = 3;
@@ -90,10 +93,10 @@
                this.cbPrintUpdateStudentFile.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
                this.cbPrintUpdateStudentFile.Location = new System.Drawing.Point(38, 60);
                this.cbPrintUpdateStudentFile.Name = "cbPrintUpdateStudentFile";
-               this.cbPrintUpdateStudentFile.Size = new System.Drawing.Size(201, 21);
+               this.cbPrintUpdateStudentFile.Size = new System.Drawing.Size(147, 21);
                this.cbPrintUpdateStudentFile.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
                this.cbPrintUpdateStudentFile.TabIndex = 7;
-               this.cbPrintUpdateStudentFile.Text = "列印完成上傳為學生電子報表";
+               this.cbPrintUpdateStudentFile.Text = "上傳為學生電子報表";
                // 
                // cbPrintSaveFile
                // 
@@ -106,16 +109,32 @@
                this.cbPrintSaveFile.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
                this.cbPrintSaveFile.Location = new System.Drawing.Point(38, 92);
                this.cbPrintSaveFile.Name = "cbPrintSaveFile";
-               this.cbPrintSaveFile.Size = new System.Drawing.Size(343, 21);
+               this.cbPrintSaveFile.Size = new System.Drawing.Size(276, 21);
                this.cbPrintSaveFile.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
                this.cbPrintSaveFile.TabIndex = 8;
-               this.cbPrintSaveFile.Text = "列印完成另存新檔(需另外選擇儲存檔案之資料夾位置)";
+               this.cbPrintSaveFile.Text = "進行單檔列印(一名學生一張報表另存新檔)";
+               // 
+               // labelX2
+               // 
+               this.labelX2.AutoSize = true;
+               this.labelX2.BackColor = System.Drawing.Color.Transparent;
+               // 
+               // 
+               // 
+               this.labelX2.BackgroundStyle.Class = "";
+               this.labelX2.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+               this.labelX2.Location = new System.Drawing.Point(57, 124);
+               this.labelX2.Name = "labelX2";
+               this.labelX2.Size = new System.Drawing.Size(257, 21);
+               this.labelX2.TabIndex = 13;
+               this.labelX2.Text = "(檔名規格:學號_身分證號_班級_座號_姓名)";
                // 
                // NewSRoutineForm
                // 
                this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
                this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-               this.ClientSize = new System.Drawing.Size(402, 168);
+               this.ClientSize = new System.Drawing.Size(402, 194);
+               this.Controls.Add(this.labelX2);
                this.Controls.Add(this.cbPrintSaveFile);
                this.Controls.Add(this.cbPrintUpdateStudentFile);
                this.Controls.Add(this.labelX1);
@@ -137,5 +156,6 @@
         private DevComponents.DotNetBar.ButtonX btnSave;
         private DevComponents.DotNetBar.Controls.CheckBoxX cbPrintUpdateStudentFile;
         private DevComponents.DotNetBar.Controls.CheckBoxX cbPrintSaveFile;
+        private DevComponents.DotNetBar.LabelX labelX2;
     }
 }
