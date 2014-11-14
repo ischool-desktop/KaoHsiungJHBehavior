@@ -36,6 +36,12 @@ namespace KaoHsiung.DailyLife
             //    DaliyLife.ShowDialog();
             //};
 
+            KBKeyIn["設定"]["日常生活表現輸入時間設定"].Enable = User.Acl["JHSchool.StuAdmin.Ribbon0025"].Executable;
+            KBKeyIn["設定"]["日常生活表現輸入時間設定"].Click += delegate
+            {
+                 DailyLifeInputControl roto = new DailyLifeInputControl();
+                 roto.ShowDialog();
+            };
 
             RibbonBarItem StuItem = StuAdmin.Instance.RibbonBarItems["批次作業/查詢"];
             StuItem["評等輸入狀況"].Image = Properties.Resources.ink_ok_64;
@@ -48,6 +54,8 @@ namespace KaoHsiung.DailyLife
             #endregion
 
             #region 學生訓導紀錄表
+
+
             RibbonBarItem rbItem2 = Student.Instance.RibbonBarItems["資料統計"];
             rbItem2["報表"]["學務相關報表"]["學生訓導紀錄表"].Click += delegate
             {
@@ -59,7 +67,15 @@ namespace KaoHsiung.DailyLife
             {
                 rbItem2["報表"]["學務相關報表"]["學生訓導紀錄表"].Enable =
                     Student.Instance.SelectedList.Count >= 1 & User.Acl["JHSchool.Student.Report0060"].Executable;
-            }; 
+            };
+
+            string URL學生訓導記錄表 = "ischool/國中系統/學生/報表/學務/學生訓導記錄表";
+            FISCA.Features.Register(URL學生訓導記錄表, arg =>
+            {
+                 NewSRoutineForm StudentRW = new NewSRoutineForm();
+                 StudentRW.ShowDialog();
+            });
+
             #endregion
 
             #region 評等輸入
@@ -172,6 +188,7 @@ namespace KaoHsiung.DailyLife
             Catalog stuRibbon = RoleAclSource.Instance["學務作業"];
             stuRibbon.Add(new RibbonFeature("JHSchool.StuAdmin.Ribbon00110", "評等輸入狀況"));
             stuRibbon.Add(new RibbonFeature("JHSchool.StuAdmin.Ribbon0020", "日常生活表現評量設定"));
+            stuRibbon.Add(new RibbonFeature("JHSchool.StuAdmin.Ribbon0025", "日常生活表現輸入時間設定"));
 
             #endregion
         }
