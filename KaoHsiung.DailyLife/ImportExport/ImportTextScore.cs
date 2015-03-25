@@ -135,7 +135,10 @@ namespace JHSchool.Behavior.ImportExport
                                     {
                                         XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
                                         NewElement.SetAttribute("Name", DailyBehavior);
-                                        NewElement.SetAttribute("Index", Indexes[DailyBehavior]);
+                                        if (Indexes.ContainsKey(DailyBehavior))
+                                            NewElement.SetAttribute("Index", Indexes[DailyBehavior]);
+                                        else
+                                            NewElement.SetAttribute("Index", "");
 
                                         if (!string.IsNullOrEmpty(row[DailyBehavior]))
                                             NewElement.SetAttribute("Degree", row[DailyBehavior]);
@@ -267,9 +270,13 @@ namespace JHSchool.Behavior.ImportExport
                             XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
 
                             NewElement.SetAttribute("Name", DailyBehavior);
-                            NewElement.SetAttribute("Index", Indexes[DailyBehavior]);
-                            NewElement.SetAttribute("Degree", "");
 
+                            if (Indexes.ContainsKey(DailyBehavior))
+                                NewElement.SetAttribute("Index", Indexes[DailyBehavior]);
+                            else
+                                NewElement.SetAttribute("Index", "");
+
+                            NewElement.SetAttribute("Degree", "");
                             if (row.ContainsKey(DailyBehavior))
                                 NewElement.SetAttribute("Degree", "" + row[DailyBehavior]);
 
