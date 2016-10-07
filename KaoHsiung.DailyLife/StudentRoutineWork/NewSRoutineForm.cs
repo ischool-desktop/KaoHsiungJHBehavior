@@ -37,7 +37,12 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
         List<string> StudentIDList = K12.Presentation.NLDPanels.Student.SelectedSource;
 
-        Dictionary<string, int> DicSummaryIndex = new Dictionary<string, int>();
+    	//DailyBehavior
+        //DailyLifeRecommend
+        //GroupActivity
+        //PublicService
+        //SchoolSpecial
+        Dictionary<string, string> TieDic1 = new Dictionary<string, string>();        Dictionary<string, int> DicSummaryIndex = new Dictionary<string, int>();
         Dictionary<string, string> UpdateCoddic = new Dictionary<string, string>();
 
 
@@ -240,6 +245,9 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                 #region 日常生活處理
 
                 GetBehaviorConfig(); //取得設定
+
+                PageOne.MailMerge.Execute(TieDic1.Keys.ToArray(), TieDic1.Values.ToArray());
+
 
                 //移動到(MergeField)
                 builder.MoveToMergeField("設定1");
@@ -615,7 +623,6 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         foreach (StudentDataObj student in StudentSaveDic.Keys)
                         {
                             Document doc = StudentSaveDic[student];
-
                             StringBuilder sb = new StringBuilder();
                             sb.Append(fbd.SelectedPath + "\\");
                             sb.Append(student.StudentRecord.StudentNumber + "_");
@@ -626,7 +633,6 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                             doc.Save(sb.ToString());
                         }
-
                         MsgBox.Show("學生訓導記錄表,列印完成!!");
                         System.Diagnostics.Process.Start("explorer", fbd.SelectedPath);
                     }
@@ -640,10 +646,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                 else
                 {
                     SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
-
                     SaveFileDialog1.Filter = "Word (*.doc)|*.doc|所有檔案 (*.*)|*.*";
                     SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
-
                     if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
                     {
                         inResult.Save(SaveFileDialog1.FileName);
@@ -709,6 +713,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             DLBList1.Clear();
             DLBList2.Clear();
 
+            TieDic1.Clear();
+
             K12.Data.Configuration.ConfigData cd = K12.Data.School.Configuration["DLBehaviorConfig"];
 
 
@@ -717,14 +723,19 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                 XmlElement dailyBehavior = XmlHelper.LoadXml(cd["DailyBehavior"]);
                 foreach (XmlElement item in dailyBehavior.SelectNodes("Item"))
                 {
+
                     DLBList1.Add(item.GetAttribute("Name"));
                 }
+
+                TieDic1.Add("日常行為表現", dailyBehavior.GetAttribute("Name"));
             }
 
             if (!string.IsNullOrEmpty(cd["DailyLifeRecommend"]))
             {
                 XmlElement dailyLifeRecommend = XmlHelper.LoadXml(cd["DailyLifeRecommend"]);
                 DLBList2.Add("DailyLifeRecommend");
+
+                TieDic1.Add("具體建議", dailyLifeRecommend.GetAttribute("Name"));
             }
 
 
@@ -732,6 +743,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 XmlElement groupActivity = XmlHelper.LoadXml(cd["GroupActivity"]);
                 DLBList2.Add("GroupActivity");
+
+                TieDic1.Add("團體活動表現", groupActivity.GetAttribute("Name"));
             }
 
 
@@ -739,6 +752,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 XmlElement publicService = XmlHelper.LoadXml(cd["PublicService"]);
                 DLBList2.Add("PublicService");
+
+                TieDic1.Add("公共服務表現", publicService.GetAttribute("Name"));
             }
 
 
@@ -746,6 +761,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 XmlElement schoolSpecial = XmlHelper.LoadXml(cd["SchoolSpecial"]);
                 DLBList2.Add("SchoolSpecial");
+
+                TieDic1.Add("校內外特殊", schoolSpecial.GetAttribute("Name"));
             }
         }
 
