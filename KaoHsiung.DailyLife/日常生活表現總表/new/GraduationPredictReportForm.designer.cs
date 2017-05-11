@@ -124,16 +124,32 @@
             this.gpDaily.Style.BorderRightWidth = 1;
             this.gpDaily.Style.BorderTop = DevComponents.DotNetBar.eStyleBorderType.Solid;
             this.gpDaily.Style.BorderTopWidth = 1;
+            this.gpDaily.Style.Class = "";
             this.gpDaily.Style.CornerDiameter = 4;
             this.gpDaily.Style.CornerType = DevComponents.DotNetBar.eCornerType.Rounded;
             this.gpDaily.Style.TextColorSchemePart = DevComponents.DotNetBar.eColorSchemePart.PanelText;
             this.gpDaily.Style.TextLineAlignment = DevComponents.DotNetBar.eStyleTextAlignment.Near;
+            // 
+            // 
+            // 
+            this.gpDaily.StyleMouseDown.Class = "";
+            this.gpDaily.StyleMouseDown.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            // 
+            // 
+            // 
+            this.gpDaily.StyleMouseOver.Class = "";
+            this.gpDaily.StyleMouseOver.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.gpDaily.TabIndex = 3;
             this.gpDaily.Text = "日常生活表現";
             // 
             // labelX2
             // 
             this.labelX2.AutoSize = true;
+            // 
+            // 
+            // 
+            this.labelX2.BackgroundStyle.Class = "";
+            this.labelX2.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.labelX2.Location = new System.Drawing.Point(14, 10);
             this.labelX2.Name = "labelX2";
             this.labelX2.Size = new System.Drawing.Size(116, 21);
@@ -160,6 +176,7 @@
             this.ClientSize = new System.Drawing.Size(333, 246);
             this.Controls.Add(this.btnPrint);
             this.Controls.Add(this.gpDaily);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "GraduationPredictReportForm";
             this.Text = "及格設定畫面";

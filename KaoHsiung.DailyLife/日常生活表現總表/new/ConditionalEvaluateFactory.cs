@@ -6,6 +6,7 @@ using JHSchool.Evaluation.Calculation.GraduationConditions;
 using JHSchool.Evaluation.Calculation;
 using System.Xml;
 
+
 namespace JHSchool.Evaluation.StudentExtendControls.Ribbon.GraduationPredictReportControls
 {
     class ConditionalEvaluateFactory : IEvaluateFactory
