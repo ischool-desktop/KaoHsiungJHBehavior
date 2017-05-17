@@ -17,6 +17,10 @@ using System.Xml;
 using SmartSchool.ePaper;
 using K12EmergencyContact.DAO;
 
+
+
+
+
 namespace KaoHsiung.DailyLife.StudentRoutineWork
 {
     public partial class NewSRoutineForm : BaseForm
@@ -45,7 +49,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         Dictionary<string, string> TieDic1 = new Dictionary<string, string>();        Dictionary<string, int> DicSummaryIndex = new Dictionary<string, int>();
         Dictionary<string, string> UpdateCoddic = new Dictionary<string, string>();
 
-
+        
 
         List<SemesterSLR> SLRNameList { get; set; }
 
@@ -72,6 +76,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+                     
             MotherForm.SetStatusBarMessage("開始列印學生訓導記錄表...");
             btnSave.Enabled = false;
 
@@ -554,9 +559,27 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                 #endregion
 
 
+
                 MemoryStream stream = new MemoryStream();
+                //PageOne.Save(stream, SaveFormat.Doc);
+                //paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));
+
                 PageOne.Save(stream, SaveFormat.Doc);
-                paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));
+
+                if (cbIsPdf.Checked) 
+                {
+                    MemoryStream stream_pdf = new MemoryStream();
+
+                    stream_pdf = (MemoryStream)Aspose.IO.tools.SavePDFtoStream(stream);
+
+                    paperForStudent.Append(new PaperItem(PaperFormat.AdobePdf, stream_pdf, student));                                
+                }
+
+                if (cbIsDoc.Checked) 
+                {
+                    paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));                                
+                }
+                
 
                 StudentSaveDic.Add(obj, PageOne);
 
@@ -615,50 +638,112 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 if (PrintSaveFile)
                 {
-                    FolderBrowserDialog fbd = new FolderBrowserDialog();
-                    fbd.Description = "請選擇訓導記錄表檔案儲存位置\n規格為(學號_身分證號_班級_座號_姓名)";
-                    DialogResult dr = fbd.ShowDialog();
-                    if (dr == System.Windows.Forms.DialogResult.OK)
+                    if (cbIsDoc.Checked) 
                     {
-                        foreach (StudentDataObj student in StudentSaveDic.Keys)
+                        FolderBrowserDialog fbd = new FolderBrowserDialog();
+                        fbd.Description = "請選擇訓導記錄表檔案儲存位置\n規格為(學號_身分證號_班級_座號_姓名)";
+                        DialogResult dr = fbd.ShowDialog();
+                        if (dr == System.Windows.Forms.DialogResult.OK)
                         {
-                            Document doc = StudentSaveDic[student];
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append(fbd.SelectedPath + "\\");
-                            sb.Append(student.StudentRecord.StudentNumber + "_");
-                            sb.Append(student.StudentRecord.IDNumber + "_");
-                            sb.Append((student.StudentRecord.Class != null ? student.StudentRecord.Class.Name : "") + "_");
-                            sb.Append((student.StudentRecord.SeatNo.HasValue ? "" + student.StudentRecord.SeatNo.Value : "") + "_");
-                            sb.Append(student.StudentRecord.Name + ".doc");
+                            foreach (StudentDataObj student in StudentSaveDic.Keys)
+                            {
+                                Document doc = StudentSaveDic[student];
+                                StringBuilder sb = new StringBuilder();
+                                sb.Append(fbd.SelectedPath + "\\");
+                                sb.Append(student.StudentRecord.StudentNumber + "_");
+                                sb.Append(student.StudentRecord.IDNumber + "_");
+                                sb.Append((student.StudentRecord.Class != null ? student.StudentRecord.Class.Name : "") + "_");
+                                sb.Append((student.StudentRecord.SeatNo.HasValue ? "" + student.StudentRecord.SeatNo.Value : "") + "_");
+                                sb.Append(student.StudentRecord.Name + ".doc");
 
-                            doc.Save(sb.ToString());
+                                doc.Save(sb.ToString());
+                            }
+                            MsgBox.Show("學生訓導記錄表,列印完成!!");
+                            System.Diagnostics.Process.Start("explorer", fbd.SelectedPath);
                         }
-                        MsgBox.Show("學生訓導記錄表,列印完成!!");
-                        System.Diagnostics.Process.Start("explorer", fbd.SelectedPath);
+                        else
+                        {
+                            MsgBox.Show("已取消存檔!!");
+                            return;
+                        }                                        
                     }
-                    else
+                    if (cbIsPdf.Checked) 
                     {
-                        MsgBox.Show("已取消存檔!!");
-                        return;
-                    }
+                        FolderBrowserDialog fbd = new FolderBrowserDialog();
+                        fbd.Description = "請選擇訓導記錄表檔案儲存位置\n規格為(學號_身分證號_班級_座號_姓名)";
+                        DialogResult dr = fbd.ShowDialog();
+                        if (dr == System.Windows.Forms.DialogResult.OK)
+                        {
+                            foreach (StudentDataObj student in StudentSaveDic.Keys)
+                            {
+                                Document doc = StudentSaveDic[student];
+                                StringBuilder sb = new StringBuilder();
+                                sb.Append(fbd.SelectedPath + "\\");
+                                sb.Append(student.StudentRecord.StudentNumber + "_");
+                                sb.Append(student.StudentRecord.IDNumber + "_");
+                                sb.Append((student.StudentRecord.Class != null ? student.StudentRecord.Class.Name : "") + "_");
+                                sb.Append((student.StudentRecord.SeatNo.HasValue ? "" + student.StudentRecord.SeatNo.Value : "") + "_");
+                                sb.Append(student.StudentRecord.Name + ".pdf");
 
+                                
+                                MemoryStream stream = new MemoryStream();
+
+                                doc.Save(stream, SaveFormat.Doc);
+
+                                Aspose.IO.tools.SavePDFtoLocal(stream, sb.ToString());
+
+                            }
+                            MsgBox.Show("學生訓導記錄表,列印完成!!");
+                            System.Diagnostics.Process.Start("explorer", fbd.SelectedPath);
+                        }
+                        else
+                        {
+                            MsgBox.Show("已取消存檔!!");
+                            return;
+                        }                                        
+                    }                    
                 }
                 else
                 {
-                    SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
-                    SaveFileDialog1.Filter = "Word (*.doc)|*.doc|所有檔案 (*.*)|*.*";
-                    SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
-                    if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+                    if (cbIsDoc.Checked) 
                     {
-                        inResult.Save(SaveFileDialog1.FileName);
-                        Process.Start(SaveFileDialog1.FileName);
-                        MotherForm.SetStatusBarMessage("學生訓導記錄表,列印完成!!");
+                        SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
+                        SaveFileDialog1.Filter = "Word (*.doc)|*.doc|所有檔案 (*.*)|*.*";
+                        SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
+                        if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            inResult.Save(SaveFileDialog1.FileName);
+                            Process.Start(SaveFileDialog1.FileName);
+                            MotherForm.SetStatusBarMessage("學生訓導記錄表,列印完成!!");
+                        }
+                        else
+                        {
+                            FISCA.Presentation.Controls.MsgBox.Show("已取消存檔");
+                            return;
+                        }                    
                     }
-                    else
+                    if (cbIsPdf.Checked) 
                     {
-                        FISCA.Presentation.Controls.MsgBox.Show("已取消存檔");
-                        return;
-                    }
+                        SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
+                        SaveFileDialog1.Filter = "Pdf Files|*.pdf";
+                        SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
+                        if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            MemoryStream stream = new MemoryStream();
+
+                            inResult.Save(stream, SaveFormat.Doc);
+
+                            Aspose.IO.tools.SavePDFtoLocal(stream, SaveFileDialog1.FileName);
+                                                                                    
+                            Process.Start(SaveFileDialog1.FileName);
+                            MotherForm.SetStatusBarMessage("學生訓導記錄表,列印完成!!");
+                        }
+                        else
+                        {
+                            FISCA.Presentation.Controls.MsgBox.Show("已取消存檔");
+                            return;
+                        }                       
+                    }                    
                 }
             }
             catch
@@ -837,6 +922,31 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void cbIsPdf_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbIsPdf.Checked)
+            {
+                cbIsDoc.Checked = false;
+            }
+            else 
+            {
+                cbIsDoc.Checked = true;
+            }
+        }
+
+        private void cbIsDoc_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbIsDoc.Checked)
+            {
+                cbIsPdf.Checked = false;
+                
+            }
+            else
+            {
+                cbIsPdf.Checked = true;
+            }
         }
     }
 

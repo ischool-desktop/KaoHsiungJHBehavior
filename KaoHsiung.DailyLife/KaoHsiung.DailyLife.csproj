@@ -47,6 +47,11 @@
       <HintPath>..\..\..\..\..\Documents and Settings\Dylan.Huang\桌面\系統\FiscaAE國中開發\modules\Campus\Aspose.Cells.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Aspose.IO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\Aspose.IO.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Aspose.Words, Version=4.4.1.0, Culture=neutral, PublicKeyToken=716fcc553a201e56">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Documents and Settings\Dylan.Huang\桌面\系統\FiscaAE國中開發\modules\Campus\Aspose.Words.dll</HintPath>
