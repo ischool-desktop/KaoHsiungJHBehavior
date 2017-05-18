@@ -570,7 +570,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                 {
                     MemoryStream stream_pdf = new MemoryStream();
 
-                    stream_pdf = (MemoryStream)Aspose.IO.tools.SavePDFtoStream(stream);
+                    stream_pdf = (MemoryStream)Aspose.IO.Tools.SavePDFtoStream(stream);
 
                     paperForStudent.Append(new PaperItem(PaperFormat.AdobePdf, stream_pdf, student));                                
                 }
@@ -690,7 +690,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                                 doc.Save(stream, SaveFormat.Doc);
 
-                                Aspose.IO.tools.SavePDFtoLocal(stream, sb.ToString());
+                                Aspose.IO.Tools.SavePDFtoLocal(stream, sb.ToString());
 
                             }
                             MsgBox.Show("學生訓導記錄表,列印完成!!");
@@ -733,7 +733,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                             inResult.Save(stream, SaveFormat.Doc);
 
-                            Aspose.IO.tools.SavePDFtoLocal(stream, SaveFileDialog1.FileName);
+                            Aspose.IO.Tools.SavePDFtoLocal(stream, SaveFileDialog1.FileName);
                                                                                     
                             Process.Start(SaveFileDialog1.FileName);
                             MotherForm.SetStatusBarMessage("學生訓導記錄表,列印完成!!");
