@@ -45,12 +45,17 @@ namespace KaoHsiung.DailyLife
 
         XmlElement mapping;
 
+        //2019/10/15 - Dylan add Log
+        StringBuilder sb_log = new StringBuilder();
+
         public DailyLifeConfigForm()
         {
             InitializeComponent();
 
             #region 建構子
             K12.Data.Configuration.ConfigData cd = K12.Data.School.Configuration["DLBehaviorConfig"];
+
+            sb_log.AppendLine("修改前資料：");
 
             #region 日常行為表現
             if (!string.IsNullOrEmpty(cd["DailyBehavior"]))
@@ -63,8 +68,16 @@ namespace KaoHsiung.DailyLife
 
                     txtDailyBehavior.Text = gpDailyBehavior.Text;
 
+                    sb_log.AppendLine("");
+                    sb_log.AppendLine(gpDailyBehavior.Text + "：");
+
                     foreach (XmlElement item in dailyBehavior.SelectNodes("Item"))
+                    {
                         dgvDailyBehavior.Rows.Add(item.GetAttribute("Name"), item.GetAttribute("Index"));
+
+                        //2019/10/15 - Dylan add Log
+                        sb_log.AppendLine(string.Format("欄位「{0}」說明「{1}」", item.GetAttribute("Name"), item.GetAttribute("Index")));
+                    }
 
                     mapping = dailyBehavior.SelectSingleNode("PerformanceDegree") as XmlElement;
                 }
@@ -82,8 +95,17 @@ namespace KaoHsiung.DailyLife
 
                     txtGroupActivity.Text = gpGroupActivity.Text;
 
+                    //2019/10/15 - Dylan add Log
+                    sb_log.AppendLine("");
+                    sb_log.AppendLine("「" + gpGroupActivity.Text + "」");
+
                     foreach (XmlElement item in groupActivity.SelectNodes("Item"))
+                    {
                         dgvGroupActivity.Rows.Add(item.GetAttribute("Name"));
+
+                        //2019/10/15 - Dylan add Log
+                        sb_log.AppendLine(string.Format("欄位「{0}」", item.GetAttribute("Name")));
+                    }
                 }
             }
             #endregion
@@ -99,8 +121,17 @@ namespace KaoHsiung.DailyLife
 
                     txtPublicService.Text = gpPublicService.Text;
 
+                    //2019/10/15 - Dylan add Log
+                    sb_log.AppendLine("");
+                    sb_log.AppendLine("「" + gpPublicService.Text + "」");
+
                     foreach (XmlElement item in publicService.SelectNodes("Item"))
+                    {
                         dgvPublicService.Rows.Add(item.GetAttribute("Name"));
+
+                        //2019/10/15 - Dylan add Log
+                        sb_log.AppendLine(string.Format("欄位「{0}」", item.GetAttribute("Name")));
+                    }
                 }
             }
             #endregion
@@ -116,8 +147,17 @@ namespace KaoHsiung.DailyLife
 
                     txtSchoolSpecial.Text = gpSchoolSpecial.Text;
 
+                    //2019/10/15 - Dylan add Log
+                    sb_log.AppendLine("");
+                    sb_log.AppendLine("「" + gpSchoolSpecial.Text + "」");
+
                     foreach (XmlElement item in schoolSpecial.SelectNodes("Item"))
+                    {
                         dgvSchoolSpecial.Rows.Add(item.GetAttribute("Name"));
+
+                        //2019/10/15 - Dylan add Log
+                        sb_log.AppendLine(string.Format("欄位「{0}」", item.GetAttribute("Name")));
+                    }
                 }
             }
             #endregion
@@ -132,9 +172,15 @@ namespace KaoHsiung.DailyLife
                     gpDailyLifeRecommend.Text = dailyLifeRecommend.GetAttribute("Name");
 
                     txtDailyLifeRecommend.Text = gpDailyLifeRecommend.Text;
+
+                    sb_log.AppendLine("");
+                    sb_log.AppendLine("「" + gpDailyLifeRecommend.Text + "」");
                 }
             }
             #endregion
+
+            sb_log.AppendLine("");
+
             #endregion
         }
 
@@ -146,8 +192,7 @@ namespace KaoHsiung.DailyLife
         private void butSave_Click(object sender, EventArgs e)
         {
             K12.Data.Configuration.ConfigData cd = K12.Data.School.Configuration["DLBehaviorConfig"];
-
-
+            
             #region 日常行為表現
             //<DailyBehavior Name=\"日常行為表現\">
             //    <Item Name=\"愛整潔\" Index=\"抽屜乾淨\"></Item>
@@ -172,6 +217,11 @@ namespace KaoHsiung.DailyLife
             //dailyBehavior.SetAttribute(".", "Name", gpDailyBehavior.Text);
             dailyBehavior.SetAttribute(".", "Name", txtDailyBehavior.Text);
 
+            //2019/10/15 - Dylan add Log
+            sb_log.AppendLine("修改後資料：");
+            sb_log.AppendLine("");
+            sb_log.AppendLine(string.Format("「{0}」修改為「{1}」", gpDailyBehavior.Text, txtDailyBehavior.Text));
+
             foreach (DataGridViewRow row in dgvDailyBehavior.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -183,6 +233,9 @@ namespace KaoHsiung.DailyLife
                 XmlElement node = dailyBehavior.AddElement("Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
                 node.SetAttribute("Index", "" + row.Cells[1].Value);
+
+                //2019/10/15 - Dylan add Log
+                sb_log.AppendLine(string.Format("欄位「{0}」說明「{1}」", "" + row.Cells[0].Value, "" + row.Cells[1].Value));
             }
 
             dailyBehavior.AddElement("PerformanceDegree");
@@ -208,6 +261,11 @@ namespace KaoHsiung.DailyLife
             //</GroupActivity>
             DSXmlHelper groupActivity = new DSXmlHelper("GroupActivity");
             groupActivity.SetAttribute(".", "Name", txtGroupActivity.Text);
+
+            //2019/10/15 - Dylan add Log
+            sb_log.AppendLine("");
+            sb_log.AppendLine(string.Format("「{0}」修改為「{1}」", gpGroupActivity.Text, txtGroupActivity.Text));
+
             foreach (DataGridViewRow row in dgvGroupActivity.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -218,6 +276,9 @@ namespace KaoHsiung.DailyLife
 
                 XmlElement node = groupActivity.AddElement("Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
+
+                //2019/10/15 - Dylan add Log
+                sb_log.AppendLine(string.Format("欄位「{0}」", "" + row.Cells[0].Value));
             }
             cd["GroupActivity"] = groupActivity.ToString(); 
             #endregion
@@ -229,6 +290,11 @@ namespace KaoHsiung.DailyLife
             //</PublicService>
             DSXmlHelper publicService = new DSXmlHelper("PublicService");
             publicService.SetAttribute(".", "Name", txtPublicService.Text);
+
+            //2019/10/15 - Dylan add Log
+            sb_log.AppendLine("");
+            sb_log.AppendLine(string.Format("「{0}」修改為「{1}」", gpPublicService.Text, txtPublicService.Text));
+
             foreach (DataGridViewRow row in dgvPublicService.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -239,6 +305,9 @@ namespace KaoHsiung.DailyLife
 
                 XmlElement node = publicService.AddElement("Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
+
+                //2019/10/15 - Dylan add Log
+                sb_log.AppendLine(string.Format("欄位「{0}」", "" + row.Cells[0].Value));
             }
             cd["PublicService"] = publicService.ToString(); 
             #endregion
@@ -250,6 +319,11 @@ namespace KaoHsiung.DailyLife
             //</SchoolSpecial>
             DSXmlHelper schoolSpecial = new DSXmlHelper("SchoolSpecial");
             schoolSpecial.SetAttribute(".", "Name", txtSchoolSpecial.Text);
+
+            //2019/10/15 - Dylan add Log
+            sb_log.AppendLine("");
+            sb_log.AppendLine(string.Format("「{0}」修改為「{1}」", gpSchoolSpecial.Text, txtSchoolSpecial.Text));
+
             foreach (DataGridViewRow row in dgvSchoolSpecial.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -260,6 +334,9 @@ namespace KaoHsiung.DailyLife
 
                 XmlElement node = schoolSpecial.AddElement("Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
+
+                //2019/10/15 - Dylan add Log
+                sb_log.AppendLine(string.Format("欄位「{0}」", "" + row.Cells[0].Value));
             }
             cd["SchoolSpecial"] = schoolSpecial.ToString(); 
             #endregion
@@ -268,7 +345,12 @@ namespace KaoHsiung.DailyLife
             //<DailyLifeRecommend Name=\"日常生活表現具體建議\"/>
             DSXmlHelper dailyLifeRecommend = new DSXmlHelper("DailyLifeRecommend");
             dailyLifeRecommend.SetAttribute(".", "Name", txtDailyLifeRecommend.Text);
-            cd["DailyLifeRecommend"] = dailyLifeRecommend.ToString(); 
+            cd["DailyLifeRecommend"] = dailyLifeRecommend.ToString();
+
+            //2019/10/15 - Dylan add Log
+            sb_log.AppendLine("");
+            sb_log.AppendLine(string.Format("「{0}」修改為「{1}」", gpDailyLifeRecommend.Text, txtDailyLifeRecommend.Text));
+
             #endregion
 
             try
@@ -281,7 +363,7 @@ namespace KaoHsiung.DailyLife
                 FISCA.Presentation.Controls.MsgBox.Show("儲存失敗");
             }
 
-            ApplicationLog.Log("日常生活表現模組.日常生活表現評量設定", "修改日常生活表現評量設定值", "「日常生活表現評量設定值」已被修改。");
+            ApplicationLog.Log("日常生活表現設定", "修改", sb_log.ToString());
             FISCA.Presentation.Controls.MsgBox.Show("設定檔儲存成功");
 
             this.Close(); 

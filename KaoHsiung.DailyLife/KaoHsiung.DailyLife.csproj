@@ -49,7 +49,7 @@
     </Reference>
     <Reference Include="Aspose.IO">
       <HintPath>Library\Aspose.IO.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Aspose.Words, Version=4.4.1.0, Culture=neutral, PublicKeyToken=716fcc553a201e56">
       <SpecificVersion>False</SpecificVersion>
