@@ -51,9 +51,9 @@
             this.labelX1.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
             this.labelX1.Location = new System.Drawing.Point(22, 22);
             this.labelX1.Name = "labelX1";
-            this.labelX1.Size = new System.Drawing.Size(281, 21);
+            this.labelX1.Size = new System.Drawing.Size(244, 21);
             this.labelX1.TabIndex = 5;
-            this.labelX1.Text = "列印訓導記錄表除產生報表,您可以有以下選擇:";
+            this.labelX1.Text = "列印 學生訓導記錄表 您可以有以下選擇:";
             // 
             // btnClose
             // 

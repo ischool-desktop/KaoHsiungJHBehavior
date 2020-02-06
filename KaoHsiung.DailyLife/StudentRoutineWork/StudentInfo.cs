@@ -5,6 +5,7 @@ using System.Text;
 using JHSchool.Data;
 using FISCA.UDT;
 using JHSchool.Behavior.BusinessLogic;
+using K12.Data;
 
 namespace KaoHsiung.DailyLife.StudentRoutineWork
 {
@@ -17,8 +18,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         private List<JHParentRecord> ListParent = new List<JHParentRecord>();
 
         private List<JHAddressRecord> ListAddress = new List<JHAddressRecord>();
-        private List<JHMeritRecord> ListMerit = new List<JHMeritRecord>();
-        private List<JHDemeritRecord> ListDeMerit = new List<JHDemeritRecord>();
+        private List<MeritRecord> ListMerit = new List<MeritRecord>();
+        private List<DemeritRecord> ListDeMerit = new List<DemeritRecord>();
 
         private List<JHMoralScoreRecord> ListMoralScore = new List<JHMoralScoreRecord>();
         private List<JHUpdateRecordRecord> ListUpdataRecord = new List<JHUpdateRecordRecord>();
@@ -74,8 +75,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             ListParent = JHParent.SelectByStudentIDs(StudentIDList); //取得監護人資料
 
             ListAddress = JHAddress.SelectByStudentIDs(StudentIDList); //取得地址資料
-            ListMerit = JHMerit.SelectByStudentIDs(StudentIDList); //取得獎勵資料(一對多)
-            ListDeMerit = JHDemerit.SelectByStudentIDs(StudentIDList); //取得懲戒資料(一對多)
+            ListMerit = Merit.SelectByStudentIDs(StudentIDList); //取得獎勵資料(一對多)
+            ListDeMerit = Demerit.SelectByStudentIDs(StudentIDList); //取得懲戒資料(一對多)
             ListMoralScore = JHMoralScore.SelectByStudentIDs(StudentIDList); //取得日常生活表現資料(一對多)
             ListUpdataRecord = JHUpdateRecord.SelectByStudentIDs(StudentIDList); //取得異動資料(一對多)
             ListJHSemesterHistory = JHSemesterHistory.SelectByStudentIDs(StudentIDList); //取得學生學期歷程
@@ -185,7 +186,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         /// </summary>
         private void SetMeritList()
         {
-            foreach (JHMeritRecord merit in ListMerit)
+            foreach (MeritRecord merit in ListMerit)
             {
                 if (DicStudent.ContainsKey(merit.RefStudentID))
                 {
@@ -199,7 +200,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         /// </summary>
         private void SetDemeritList()
         {
-            foreach (JHDemeritRecord demerit in ListDeMerit)
+            foreach (DemeritRecord demerit in ListDeMerit)
             {
                 if (DicStudent.ContainsKey(demerit.RefStudentID))
                 {

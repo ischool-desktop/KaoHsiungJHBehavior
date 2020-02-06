@@ -41,15 +41,15 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
         List<string> StudentIDList = K12.Presentation.NLDPanels.Student.SelectedSource;
 
-    	//DailyBehavior
+        //DailyBehavior
         //DailyLifeRecommend
         //GroupActivity
         //PublicService
         //SchoolSpecial
-        Dictionary<string, string> TieDic1 = new Dictionary<string, string>();        Dictionary<string, int> DicSummaryIndex = new Dictionary<string, int>();
+        Dictionary<string, string> TieDic1 = new Dictionary<string, string>(); Dictionary<string, int> DicSummaryIndex = new Dictionary<string, int>();
         Dictionary<string, string> UpdateCoddic = new Dictionary<string, string>();
 
-        
+
 
         List<SemesterSLR> SLRNameList { get; set; }
 
@@ -76,7 +76,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-                     
+
             MotherForm.SetStatusBarMessage("開始列印學生訓導記錄表...");
             btnSave.Enabled = false;
 
@@ -202,6 +202,12 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                 name.Add("三下");
                 value.Add(obj.GradeYear32);
+
+                name.Add("日期");
+                value.Add(DateTime.Now.ToString("yyyy/MM/dd"));
+
+                name.Add("時間");
+                value.Add(DateTime.Now.ToString("HH:mm:ss"));
 
                 PageOne.MailMerge.Execute(name.ToArray(), value.ToArray());
                 #endregion
@@ -380,7 +386,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                 int MeritDemeritIndex = obj.ListMerit.Count;
 
-                foreach (JHDemeritRecord demerit in obj.ListDeMerit)
+                foreach (DemeritRecord demerit in obj.ListDeMerit)
                 {
                     if (demerit.Cleared != "是")
                         MeritDemeritIndex++;
@@ -392,7 +398,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                     (MeritDemeritCell.ParentNode.ParentNode as Table).InsertAfter(Derow.Clone(true), MeritDemeritCell.ParentNode);
                 }
 
-                foreach (JHMeritRecord merit in obj.ListMerit)
+                foreach (MeritRecord merit in obj.ListMerit)
                 {
                     #region 獎勵
                     string MeritSchoolYearSemerit = merit.SchoolYear.ToString() + "/" + merit.Semester.ToString();
@@ -401,12 +407,14 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                     string B = merit.MeritB.HasValue ? merit.MeritB.Value.ToString() : "";
                     string C = merit.MeritC.HasValue ? merit.MeritC.Value.ToString() : "";
                     string Reason = merit.Reason;
+                    string remark = merit.Remark;
 
                     Cell MeritCellDay = GetMoveRightCell(MeritDemeritCell, 1);
                     Cell MeritCellA = GetMoveRightCell(MeritDemeritCell, 2);
                     Cell MeritCellB = GetMoveRightCell(MeritDemeritCell, 3);
                     Cell MeritCellC = GetMoveRightCell(MeritDemeritCell, 4);
                     Cell MeritCellReason = GetMoveRightCell(MeritDemeritCell, 8);
+                    Cell MeritCellRemark = GetMoveRightCell(MeritDemeritCell, 9);
 
                     Write(MeritDemeritCell, MeritSchoolYearSemerit); //學年度
                     Write(MeritCellDay, day);
@@ -422,7 +430,9 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                     {
                         Write(MeritCellC, C);
                     }
+
                     Write(MeritCellReason, Reason);
+                    Write(MeritCellRemark, remark);
 
                     Row Nextrow2 = MeritDemeritCell.ParentRow.NextSibling as Row; //取得下一個Row
                     if (Nextrow2 != null)
@@ -432,7 +442,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                     #endregion
                 }
 
-                foreach (JHDemeritRecord demerit in obj.ListDeMerit)
+                foreach (DemeritRecord demerit in obj.ListDeMerit)
                 {
                     if (demerit.Cleared == "是")
                         continue;
@@ -444,12 +454,14 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                     string B = demerit.DemeritB.HasValue ? demerit.DemeritB.Value.ToString() : "";
                     string C = demerit.DemeritC.HasValue ? demerit.DemeritC.Value.ToString() : "";
                     string Reason = demerit.Reason;
+                    string remark = demerit.Remark;
 
                     Cell DemeritCellDay = GetMoveRightCell(MeritDemeritCell, 1);
                     Cell DemeritCellA = GetMoveRightCell(MeritDemeritCell, 5);
                     Cell DemeritCellB = GetMoveRightCell(MeritDemeritCell, 6);
                     Cell DemeritCellC = GetMoveRightCell(MeritDemeritCell, 7);
                     Cell DemeritCellReason = GetMoveRightCell(MeritDemeritCell, 8);
+                    Cell DemeritCellRemark = GetMoveRightCell(MeritDemeritCell, 9);
 
                     Write(MeritDemeritCell, DemeritSchoolYearSemerit); //學年度
                     Write(DemeritCellDay, day);
@@ -466,7 +478,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         Write(DemeritCellC, C);
                     }
                     Write(DemeritCellReason, Reason);
-
+                    Write(DemeritCellRemark, remark);
                     Row Nextrow2 = MeritDemeritCell.ParentRow.NextSibling as Row; //取得下一個Row
                     if (Nextrow2 != null)
                     {
@@ -558,28 +570,26 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
                 #endregion
 
-
-
                 MemoryStream stream = new MemoryStream();
                 //PageOne.Save(stream, SaveFormat.Doc);
                 //paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));
 
                 PageOne.Save(stream, SaveFormat.Doc);
 
-                if (cbIsPdf.Checked) 
+                if (cbIsPdf.Checked)
                 {
                     MemoryStream stream_pdf = new MemoryStream();
 
                     stream_pdf = (MemoryStream)Aspose.IO.Tools.SavePDFtoStream(stream);
 
-                    paperForStudent.Append(new PaperItem(PaperFormat.AdobePdf, stream_pdf, student));                                
+                    paperForStudent.Append(new PaperItem(PaperFormat.AdobePdf, stream_pdf, student));
                 }
 
-                if (cbIsDoc.Checked) 
+                if (cbIsDoc.Checked)
                 {
-                    paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));                                
+                    paperForStudent.Append(new PaperItem(PaperFormat.Office2003Doc, stream, student));
                 }
-                
+
 
                 StudentSaveDic.Add(obj, PageOne);
 
@@ -638,7 +648,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 if (PrintSaveFile)
                 {
-                    if (cbIsDoc.Checked) 
+                    if (cbIsDoc.Checked)
                     {
                         FolderBrowserDialog fbd = new FolderBrowserDialog();
                         fbd.Description = "請選擇訓導記錄表檔案儲存位置\n規格為(學號_身分證號_班級_座號_姓名)";
@@ -665,9 +675,9 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         {
                             MsgBox.Show("已取消存檔!!");
                             return;
-                        }                                        
+                        }
                     }
-                    if (cbIsPdf.Checked) 
+                    if (cbIsPdf.Checked)
                     {
                         FolderBrowserDialog fbd = new FolderBrowserDialog();
                         fbd.Description = "請選擇訓導記錄表檔案儲存位置\n規格為(學號_身分證號_班級_座號_姓名)";
@@ -685,7 +695,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                                 sb.Append((student.StudentRecord.SeatNo.HasValue ? "" + student.StudentRecord.SeatNo.Value : "") + "_");
                                 sb.Append(student.StudentRecord.Name + ".pdf");
 
-                                
+
                                 MemoryStream stream = new MemoryStream();
 
                                 doc.Save(stream, SaveFormat.Doc);
@@ -700,16 +710,16 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         {
                             MsgBox.Show("已取消存檔!!");
                             return;
-                        }                                        
-                    }                    
+                        }
+                    }
                 }
                 else
                 {
-                    if (cbIsDoc.Checked) 
+                    if (cbIsDoc.Checked)
                     {
                         SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
                         SaveFileDialog1.Filter = "Word (*.doc)|*.doc|所有檔案 (*.*)|*.*";
-                        SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
+                        SaveFileDialog1.FileName = string.Format("學生訓導紀錄表(高雄) {0}", DateTime.Now.ToString("yyyy-MM-dd HH-mm"));
                         if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
                         {
                             inResult.Save(SaveFileDialog1.FileName);
@@ -720,13 +730,13 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         {
                             FISCA.Presentation.Controls.MsgBox.Show("已取消存檔");
                             return;
-                        }                    
+                        }
                     }
-                    if (cbIsPdf.Checked) 
+                    if (cbIsPdf.Checked)
                     {
                         SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
                         SaveFileDialog1.Filter = "Pdf Files|*.pdf";
-                        SaveFileDialog1.FileName = "學生訓導紀錄表(高雄)";
+                        SaveFileDialog1.FileName = string.Format("學生訓導紀錄表(高雄) {0}", DateTime.Now.ToString("yyyy-MM-dd HH-mm"));
                         if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
                         {
                             MemoryStream stream = new MemoryStream();
@@ -734,7 +744,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                             inResult.Save(stream, SaveFormat.Doc);
 
                             Aspose.IO.Tools.SavePDFtoLocal(stream, SaveFileDialog1.FileName);
-                                                                                    
+
                             Process.Start(SaveFileDialog1.FileName);
                             MotherForm.SetStatusBarMessage("學生訓導記錄表,列印完成!!");
                         }
@@ -742,8 +752,8 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
                         {
                             FISCA.Presentation.Controls.MsgBox.Show("已取消存檔");
                             return;
-                        }                       
-                    }                    
+                        }
+                    }
                 }
             }
             catch
@@ -930,7 +940,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             {
                 cbIsDoc.Checked = false;
             }
-            else 
+            else
             {
                 cbIsDoc.Checked = true;
             }
@@ -941,7 +951,7 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
             if (cbIsDoc.Checked)
             {
                 cbIsPdf.Checked = false;
-                
+
             }
             else
             {

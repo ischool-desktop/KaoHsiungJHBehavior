@@ -57,6 +57,7 @@ namespace KaoHsiung.DailyLife
 
 
             RibbonBarItem rbItem2 = Student.Instance.RibbonBarItems["資料統計"];
+            rbItem2["報表"]["學務相關報表"]["學生訓導紀錄表"].Enable = false;
             rbItem2["報表"]["學務相關報表"]["學生訓導紀錄表"].Click += delegate
             {
                 NewSRoutineForm StudentRW = new NewSRoutineForm();

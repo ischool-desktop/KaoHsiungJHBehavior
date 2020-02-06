@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using FISCA.LogAgent;
 using JHSchool.Data;
 using SmartSchool.API.PlugIn;
 
@@ -93,15 +96,36 @@ namespace JHSchool.Behavior.ImportExport
             wizard.ImportComplete += (sender, e) => MessageBox.Show("匯入完成");
             wizard.ImportPackage += (sender, e) =>
             {
-                foreach (JHMoralScoreRecord record in JHMoralScore.SelectByStudentIDs(e.Items.Select(x => x.ID)))
+
+                List<string> StudentIDList = new List<string>();
+                Dictionary<string, JHStudentRecord> StudentDic = new Dictionary<string, JHStudentRecord>();
+                List<JHMoralScoreRecord> JHMoralScoreList = JHMoralScore.SelectByStudentIDs(e.Items.Select(x => x.ID));
+                foreach (JHMoralScoreRecord record in JHMoralScoreList)
+                {
                     if (!CacheMoralScore.ContainsKey(record.ID))
                         CacheMoralScore.Add(record.ID, record);
+
+                    if (!StudentIDList.Contains(record.RefStudentID))
+                        StudentIDList.Add(record.RefStudentID);
+                }
+
+                List<JHStudentRecord> StudentList = JHStudent.SelectByIDs(StudentIDList);
+                foreach (JHStudentRecord stud in StudentList)
+                {
+                    if (!StudentDic.ContainsKey(stud.ID))
+                        StudentDic.Add(stud.ID, stud);
+                }
 
                 //要更新的德行成績列表
                 List<JHMoralScoreRecord> updateMoralScores = new List<JHMoralScoreRecord>();
 
                 //要新增的德行成績列表
                 List<JHMoralScoreRecord> insertMoralScores = new List<JHMoralScoreRecord>();
+
+                //2020/2/4 - 新增Log紀錄
+                StringBuilder sb_log = new StringBuilder();
+                sb_log.AppendLine("匯入日常生活表現紀錄：");
+                sb_log.AppendLine("");
 
                 //巡訪匯入資料
                 foreach (RowData row in e.Items)
@@ -117,6 +141,9 @@ namespace JHSchool.Behavior.ImportExport
                     {
                         //根據學生編號、學年度、學期及日期取得的缺曠記錄應該只有一筆
                         JHMoralScoreRecord record = records[0];
+                        JHStudentRecord student = StudentDic[record.RefStudentID];
+
+                        sb_log.AppendLine(string.Format("更新 學生「{0}」學年度「{1}」學期「{2}」資料", student.Name, "" + schoolYear, "" + semester));
 
                         MakeSureElement(record);
 
@@ -130,9 +157,19 @@ namespace JHSchool.Behavior.ImportExport
                                     XmlElement Element = record.TextScore.SelectSingleNode("DailyBehavior/Item[@Name='" + DailyBehavior + "']") as XmlElement;
 
                                     if (Element != null)
+                                    {
+
+                                        if (CheckValue(Element.GetAttribute("Degree"), row[DailyBehavior]))
+                                        {
+                                            sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", DailyBehavior, Element.GetAttribute("Degree"), row[DailyBehavior]));
+                                        }
+
                                         Element.SetAttribute("Degree", row[DailyBehavior]);
+                                    }
                                     else
                                     {
+                                        sb_log.AppendLine(string.Format("「{0}」由「空值」修改為「{1}」", DailyBehavior, row[DailyBehavior]));
+
                                         XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
                                         NewElement.SetAttribute("Name", DailyBehavior);
                                         if (Indexes.ContainsKey(DailyBehavior))
@@ -158,10 +195,25 @@ namespace JHSchool.Behavior.ImportExport
                                     if (Element != null)
                                     {
                                         if (row.ContainsKey(GroupActivity + "：努力程度"))
-                                            Element.SetAttribute("Degree", row[GroupActivity + "：努力程度"]);
+                                        {
 
+                                            if (CheckValue(Element.GetAttribute("Degree"), row[GroupActivity + "：努力程度"]))
+                                            {
+                                                sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", GroupActivity + "：努力程度", Element.GetAttribute("Degree"), row[GroupActivity + "：努力程度"]));
+                                            }
+
+                                            Element.SetAttribute("Degree", row[GroupActivity + "：努力程度"]);
+                                        }
                                         if (row.ContainsKey(GroupActivity + "：文字描述"))
+                                        {
+
+                                            if (CheckValue(Element.GetAttribute("Description"), row[GroupActivity + "：文字描述"]))
+                                            {
+                                                sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", GroupActivity + "：文字描述", Element.GetAttribute("Description"), row[GroupActivity + "：文字描述"]));
+                                            }
+
                                             Element.SetAttribute("Description", row[GroupActivity + "：文字描述"]);
+                                        }
                                     }
                                     else
                                     {
@@ -170,10 +222,15 @@ namespace JHSchool.Behavior.ImportExport
                                         NewElement.SetAttribute("Name", GroupActivity);
 
                                         if (row.ContainsKey(GroupActivity + "：努力程度"))
+                                        {
+                                            sb_log.AppendLine(string.Format("「{0}」由「空值」修改為「{1}」", GroupActivity + "：努力程度", row[GroupActivity + "：努力程度"]));
                                             NewElement.SetAttribute("Degree", row[GroupActivity + "：努力程度"]);
-
+                                        }
                                         if (row.ContainsKey(GroupActivity + "：文字描述"))
+                                        {
+                                            sb_log.AppendLine(string.Format("「{0}」由「空值」修改為「{1}」", GroupActivity + "：文字描述", row[GroupActivity + "：文字描述"]));
                                             NewElement.SetAttribute("Description", row[GroupActivity + "：文字描述"]);
+                                        }
 
                                         record.TextScore.SelectSingleNode("GroupActivity").AppendChild(NewElement);
                                     }
@@ -187,27 +244,24 @@ namespace JHSchool.Behavior.ImportExport
                             {
                                 if (row.ContainsKey(PublicActivity + "：文字描述"))
                                 {
+
                                     //XmlElement Element = record.TextScore.SelectSingleNode("PublicService/Item[@Name='" + PublicActivity + "']") as XmlElement;
                                     XmlElement Element = GetLast(record.TextScore, "PublicService/Item[@Name='" + PublicActivity + "']");
+
+                                    if (CheckValue(Element.GetAttribute("Description"), row[PublicActivity + "：文字描述"]))
+                                    {
+                                        sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", PublicActivity + "：努力程度", Element.GetAttribute("Description"), row[PublicActivity + "：文字描述"]));
+                                    }
 
                                     Element.SetAttribute("Name", PublicActivity);
                                     Element.SetAttribute("Description", row[PublicActivity + "：文字描述"]);
 
+
+
                                     items.Add(Element);
-
-                                    //if (Element != null)
-                                    //    Element.SetAttribute("Description", row[PublicActivity + "：文字描述"]);
-                                    //else
-                                    //{
-                                    //    XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
-
-                                    //    NewElement.SetAttribute("Name", PublicActivity);
-                                    //    NewElement.SetAttribute("Description", row[PublicActivity + "：文字描述"]);
-
-                                    //    record.TextScore.SelectSingleNode("PublicService").AppendChild(NewElement);
-                                    //}
                                 }
                             }
+
                             XmlElement xml5 = (XmlElement)record.TextScore.SelectSingleNode("PublicService");
                             string PublicServiceName = xml5.GetAttribute("Name");
 
@@ -225,10 +279,18 @@ namespace JHSchool.Behavior.ImportExport
                                     XmlElement Element = record.TextScore.SelectSingleNode("SchoolSpecial/Item[@Name='" + SchoolActivity + "']") as XmlElement;
 
                                     if (Element != null)
+                                    {
+                                        if (CheckValue(Element.GetAttribute("Description"), row[SchoolActivity + "：文字描述"]))
+                                        {
+                                            sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", SchoolActivity + "：文字描述", Element.GetAttribute("Description"), row[SchoolActivity + "：文字描述"]));
+                                        }
                                         Element.SetAttribute("Description", row[SchoolActivity + "：文字描述"]);
+                                    }
                                     else
                                     {
                                         XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
+
+                                        sb_log.AppendLine(string.Format("「{0}」由「空值」修改為「{1}」", SchoolActivity + "：文字描述", row[SchoolActivity + "：文字描述"]));
 
                                         NewElement.SetAttribute("Name", SchoolActivity);
                                         NewElement.SetAttribute("Description", row[SchoolActivity + "：文字描述"]);
@@ -243,24 +305,38 @@ namespace JHSchool.Behavior.ImportExport
                                 XmlElement DailyLifeRecommentElement = record.TextScore.SelectSingleNode("DailyLifeRecommend") as XmlElement;
 
                                 if (DailyLifeRecommentElement != null)
+                                {
+                                    if (CheckValue(DailyLifeRecommentElement.GetAttribute("Description"), row["具體建議"]))
+                                    {
+                                        sb_log.AppendLine(string.Format("「{0}」由「{1}」修改為「{2}」", "具體建議", DailyLifeRecommentElement.GetAttribute("Description"), row["具體建議"]));
+                                    }
                                     DailyLifeRecommentElement.SetAttribute("Description", row["具體建議"]);
+
+                                }
                                 else
                                 {
                                     XmlElement Element = record.TextScore.OwnerDocument.CreateElement("DailyLifeRecommend");
+
+                                    sb_log.AppendLine(string.Format("「{0}」由「空值」修改為「{1}」", "具體建議", row["具體建議"]));
+
                                     Element.SetAttribute("Description", row["具體建議"]);
+
                                     record.TextScore.AppendChild(Element);
                                 }
                             }
+                            sb_log.AppendLine("");
                             updateMoralScores.Add(record);
                         }
                     }
                     else
                     {
                         JHMoralScoreRecord record = new JHMoralScoreRecord();
-
                         record.SchoolYear = schoolYear;
                         record.Semester = semester;
                         record.RefStudentID = row.ID;
+
+                        JHStudentRecord student = StudentDic[record.RefStudentID];
+                        sb_log.AppendLine(string.Format("新增 學生「{0}」學年度「{1}」學期「{2}」資料", student.Name, "" + schoolYear, "" + semester));
 
                         MakeSureElement(record);
 
@@ -280,11 +356,13 @@ namespace JHSchool.Behavior.ImportExport
                             if (row.ContainsKey(DailyBehavior))
                                 NewElement.SetAttribute("Degree", "" + row[DailyBehavior]);
 
+
+                            sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", DailyBehavior, row[DailyBehavior]));
+
                             record.TextScore.SelectSingleNode("DailyBehavior").AppendChild(NewElement);
                         }
 
                         //處理團體活動表現
-
                         foreach (string GroupActivity in GroupActivities)
                         {
                             XmlElement NewElement = record.TextScore.OwnerDocument.CreateElement("Item");
@@ -294,10 +372,16 @@ namespace JHSchool.Behavior.ImportExport
                             NewElement.SetAttribute("Description", "");
 
                             if (row.ContainsKey(GroupActivity + "：努力程度"))
+                            {
+                                sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", GroupActivity + "：努力程度", row[GroupActivity + "：努力程度"]));
                                 NewElement.SetAttribute("Degree", row[GroupActivity + "：努力程度"]);
+                            }
 
                             if (row.ContainsKey(GroupActivity + "：文字描述"))
+                            {
+                                sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", GroupActivity + "：文字描述", row[GroupActivity + "：文字描述"]));
                                 NewElement.SetAttribute("Description", row[GroupActivity + "：文字描述"]);
+                            }
 
                             record.TextScore.SelectSingleNode("GroupActivity").AppendChild(NewElement);
                         }
@@ -312,7 +396,10 @@ namespace JHSchool.Behavior.ImportExport
                             NewElement.SetAttribute("Description", "");
 
                             if (row.ContainsKey(PublicActivity + "：文字描述"))
+                            {
+                                sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", PublicActivity + "：文字描述", row[PublicActivity + "：文字描述"]));
                                 NewElement.SetAttribute("Description", row[PublicActivity + "：文字描述"]);
+                            }
 
                             record.TextScore.SelectSingleNode("PublicService").AppendChild(NewElement);
                         }
@@ -327,7 +414,10 @@ namespace JHSchool.Behavior.ImportExport
                             NewElement.SetAttribute("Description", "");
 
                             if (row.ContainsKey(SchoolActivity + "：文字描述"))
+                            {
+                                sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", SchoolActivity + "：文字描述", row[SchoolActivity + "：文字描述"]));
                                 NewElement.SetAttribute("Description", row[SchoolActivity + "：文字描述"]);
+                            }
 
                             record.TextScore.SelectSingleNode("SchoolSpecial").AppendChild(NewElement);
                         }
@@ -337,7 +427,10 @@ namespace JHSchool.Behavior.ImportExport
                             XmlElement Element = record.TextScore.SelectSingleNode("DailyLifeRecommend") as XmlElement;
 
                             if (Element != null)
+                            {
+                                sb_log.AppendLine(string.Format("「{0}」填入為「{1}」", "具體建議", row["具體建議"]));
                                 Element.SetAttribute("Description", row["具體建議"]);
+                            }
                         }
 
                         insertMoralScores.Add(record);
@@ -345,12 +438,32 @@ namespace JHSchool.Behavior.ImportExport
                 }
 
                 if (updateMoralScores.Count > 0)
+                {
                     JHMoralScore.Update(updateMoralScores);
+                }
                 if (insertMoralScores.Count > 0)
+                {
                     JHMoralScore.Insert(insertMoralScores);
+                }
+
+                if (updateMoralScores.Count + insertMoralScores.Count > 0)
+                {
+                    ApplicationLog.Log("匯入日常生活表現", "匯入", sb_log.ToString());
+                }
             };
         }
 
+        private bool CheckValue(string v1, string v2)
+        {
+            if (v1 != v2)
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// 組織TextScore Xml內容
+        /// </summary>
         public void MakeSureElement(JHMoralScoreRecord record)
         {
             //<TextScore><DailyBehavior Name="日常行為表現"/><GroupActivity Name="團體活動表現"/><PublicService Name="公共服務表現"/><SchoolSpecial Name="校內外特殊表現"/><DailyLifeRecommend Description="" Name="日常生活表現具體建議"/></TextScore>

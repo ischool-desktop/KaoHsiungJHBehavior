@@ -6,6 +6,7 @@ using JHSchool.Data;
 using System.Xml;
 using FISCA.DSAUtil;
 using JHSchool.Behavior.BusinessLogic;
+using K12.Data;
 
 namespace KaoHsiung.DailyLife.StudentRoutineWork
 {
@@ -51,12 +52,12 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
         /// <summary>
         /// 獎勵資料清單
         /// </summary>
-        public List<JHMeritRecord> ListMerit = new List<JHMeritRecord>();
+        public List<MeritRecord> ListMerit = new List<MeritRecord>();
 
         /// <summary>
         /// 懲戒資料清單
         /// </summary>
-        public List<JHDemeritRecord> ListDeMerit = new List<JHDemeritRecord>();
+        public List<DemeritRecord> ListDeMerit = new List<DemeritRecord>();
 
         /// <summary>
         /// 日常生活表現
@@ -166,19 +167,19 @@ namespace KaoHsiung.DailyLife.StudentRoutineWork
 
         private void DataSort()
         {
-            ListMerit.Sort(new Comparison<JHMeritRecord>(MeritSort));
-            ListDeMerit.Sort(new Comparison<JHDemeritRecord>(DeMeritSort));
+            ListMerit.Sort(new Comparison<MeritRecord>(MeritSort));
+            ListDeMerit.Sort(new Comparison<DemeritRecord>(DeMeritSort));
             ListUpdateRecord.Sort(new Comparison<JHUpdateRecordRecord>(UpdateRecordSort));
             ListMoralScore.Sort(new Comparison<JHMoralScoreRecord>(MoralScoreSort));
 
         }
 
-        private int MeritSort(JHMeritRecord x, JHMeritRecord y)
+        private int MeritSort(MeritRecord x, MeritRecord y)
         {
             return x.OccurDate.CompareTo(y.OccurDate);
         }
 
-        private int DeMeritSort(JHDemeritRecord x, JHDemeritRecord y)
+        private int DeMeritSort(DemeritRecord x, DemeritRecord y)
         {
             return x.OccurDate.CompareTo(y.OccurDate);
         }

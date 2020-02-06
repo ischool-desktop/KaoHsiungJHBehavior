@@ -52,6 +52,8 @@ namespace KaoHsiung.DailyLife
         private JHSchool.Data.JHStudentRecord _SR;
         private Framework.Security.FeatureAce _permission;
 
+        StringBuilder sb_log = new StringBuilder();
+
         //是否變更資料
         private ChangeListener DataListener { get; set; }
         bool CheckChange = false;
@@ -373,11 +375,15 @@ namespace KaoHsiung.DailyLife
 
         private void newSaveData()
         {
-            SaveData(); //逗出XML
-
             _editorRecord.RefStudentID = _SR.ID;
             _editorRecord.SchoolYear = int.Parse(cbSchoolYear.Text);
             _editorRecord.Semester = int.Parse(cbSemester.Text);
+
+            sb_log.AppendLine("新增日常生活表現資料：");
+            sb_log.AppendLine(string.Format("學生「{0}」學年度「{1}」學期「{2}」", _SR.Name, cbSchoolYear.Text, cbSemester.Text));
+            sb_log.AppendLine("");
+
+            SaveData(); //逗出XML
 
             try
             {
@@ -400,7 +406,8 @@ namespace KaoHsiung.DailyLife
             }
 
             //新增後轉變為更新模式
-            ApplicationLog.Log("日常生活表現模組.資料項目", "新增日常生活表現資料", "student", _editorRecord.Student.ID, "學生「" + _editorRecord.Student.Name + "」學年度「" + _editorRecord.SchoolYear.ToString() + "」學期「" + _editorRecord.Semester.ToString() + "」，已新增一筆日常生活表現資料。");
+            ApplicationLog.Log("日常生活表現", "新增", "student", _editorRecord.Student.ID, sb_log.ToString());
+
             FISCA.Presentation.Controls.MsgBox.Show("新增資料成功");
             cbSchoolYear.Enabled = false;
             cbSemester.Enabled = false;
@@ -410,6 +417,10 @@ namespace KaoHsiung.DailyLife
 
         private void updataSaveData()
         {
+            sb_log.AppendLine("更新日常生活表現資料：");
+            sb_log.AppendLine(string.Format("學生「{0}」學年度「{1}」學期「{2}」", _SR.Name, cbSchoolYear.Text, cbSemester.Text));
+            sb_log.AppendLine("");
+
             SaveData(); //逗出XML
 
             try
@@ -422,7 +433,7 @@ namespace KaoHsiung.DailyLife
                 return;
             }
 
-            ApplicationLog.Log("日常生活表現模組.資料項目", "修改日常生活表現資料", "student", _editorRecord.Student.ID, "學生「" + _editorRecord.Student.Name + "」學年度「" + _editorRecord.SchoolYear.ToString() + "」學期「" + _editorRecord.Semester.ToString() + "」，已修改一筆日常生活表現資料。");
+            ApplicationLog.Log("日常生活表現", "更新", "student", _editorRecord.Student.ID, sb_log.ToString());
 
             FISCA.Presentation.Controls.MsgBox.Show("更新資料成功");
             cbSchoolYear.Enabled = false;
@@ -441,6 +452,7 @@ namespace KaoHsiung.DailyLife
             //    <Item Name="守秩序" Index="....." Degree="3"/>
             //</DailyBehavior>
             helper.AddElement("DailyBehavior").SetAttribute("Name", tabControl1.Tabs[0].Text);
+            sb_log.AppendLine(tabControl1.Tabs[0].Text + "：");
             foreach (DataGridViewRow row in dgvDailyBehavior.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -449,7 +461,11 @@ namespace KaoHsiung.DailyLife
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
                 node.SetAttribute("Index", "" + row.Cells[1].Value);
                 node.SetAttribute("Degree", "" + row.Cells[2].Value);
+
+                sb_log.AppendLine(string.Format("項目「{0}」表現程度「{1}」", "" + row.Cells[0].Value, "" + row.Cells[2].Value));
             }
+
+            sb_log.AppendLine("");
 
             //GroupActivity
             //<GroupActivity Name="團體活動表現">
@@ -457,6 +473,7 @@ namespace KaoHsiung.DailyLife
             //    <Item Name="學校活動" Degree="2" Description=".....">
             //</GroupActivity>
             helper.AddElement("GroupActivity").SetAttribute("Name", tabControl1.Tabs[1].Text);
+            sb_log.AppendLine(tabControl1.Tabs[1].Text + "：");
             foreach (DataGridViewRow row in dgvGroupActivity.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -465,7 +482,11 @@ namespace KaoHsiung.DailyLife
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
                 node.SetAttribute("Degree", "" + row.Cells[1].Value);
                 node.SetAttribute("Description", "" + row.Cells[2].Value);
+
+                sb_log.AppendLine(string.Format("項目「{0}」努力程度「{1}」文字描述「{2}」", "" + row.Cells[0].Value, "" + row.Cells[1].Value, "" + row.Cells[2].Value));
             }
+
+            sb_log.AppendLine("");
 
             //PublicService
             //<PublicService Name="公共服務表現">
@@ -473,6 +494,8 @@ namespace KaoHsiung.DailyLife
             //    <Item Name="社區服務" Description=".....">
             //</PublicService>
             helper.AddElement("PublicService").SetAttribute("Name", tabControl1.Tabs[2].Text);
+
+            sb_log.AppendLine(tabControl1.Tabs[2].Text + "：");
             foreach (DataGridViewRow row in dgvPublicService.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -480,7 +503,11 @@ namespace KaoHsiung.DailyLife
                 XmlElement node = helper.AddElement("PublicService", "Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
                 node.SetAttribute("Description", "" + row.Cells[1].Value);
+
+                sb_log.AppendLine(string.Format("項目「{0}」文字描述「{1}」", "" + row.Cells[0].Value, "" + row.Cells[1].Value));
             }
+
+            sb_log.AppendLine("");
 
             //SchoolSpecial
             //<SchoolSpecial Name="校內外時特殊表現">
@@ -488,6 +515,8 @@ namespace KaoHsiung.DailyLife
             //    <Item Name="校內特殊表現" Description=".....">
             //</SchoolSpecial>
             helper.AddElement("SchoolSpecial").SetAttribute("Name", tabControl1.Tabs[3].Text);
+            sb_log.AppendLine(tabControl1.Tabs[3].Text + "：");
+
             foreach (DataGridViewRow row in dgvSchoolSpecial.Rows)
             {
                 if (row.IsNewRow) continue;
@@ -495,13 +524,20 @@ namespace KaoHsiung.DailyLife
                 XmlElement node = helper.AddElement("SchoolSpecial", "Item");
                 node.SetAttribute("Name", "" + row.Cells[0].Value);
                 node.SetAttribute("Description", "" + row.Cells[1].Value);
+
+                sb_log.AppendLine(string.Format("項目「{0}」文字描述「{1}」", "" + row.Cells[0].Value, "" + row.Cells[1].Value));
             }
+
+            sb_log.AppendLine("");
 
             //DailyLifeRecommend
             //<DailyLifeRecommend Name="日常生活表現具體建議" Description=".....">
             XmlElement anode = helper.AddElement("DailyLifeRecommend");
             anode.SetAttribute("Name", tabControl1.Tabs[4].Text);
             anode.SetAttribute("Description", "" + dgvDailyLifeRecommend.Rows[0].Cells[0].Value);
+
+            sb_log.AppendLine(string.Format("{0}：\n建議內容「{1}」", tabControl1.Tabs[4].Text, "" + dgvDailyLifeRecommend.Rows[0].Cells[0].Value));
+
 
             _editorRecord.TextScore = helper.BaseElement;
 
