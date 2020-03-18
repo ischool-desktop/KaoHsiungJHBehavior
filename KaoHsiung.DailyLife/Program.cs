@@ -70,8 +70,8 @@ namespace KaoHsiung.DailyLife
                     Student.Instance.SelectedList.Count >= 1 & User.Acl["JHSchool.Student.Report0060"].Executable;
             };
 
-            string URL學生訓導記錄表 = "ischool/國中系統/學生/報表/學務/學生訓導記錄表";
-            FISCA.Features.Register(URL學生訓導記錄表, arg =>
+            string URL學生訓導紀錄表 = "ischool/國中系統/學生/報表/學務/學生訓導紀錄表";
+            FISCA.Features.Register(URL學生訓導紀錄表, arg =>
             {
                  NewSRoutineForm StudentRW = new NewSRoutineForm();
                  StudentRW.ShowDialog();
