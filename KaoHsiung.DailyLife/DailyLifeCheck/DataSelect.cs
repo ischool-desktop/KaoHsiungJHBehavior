@@ -43,7 +43,7 @@ namespace KaoHsiung.DailyLife
 
             if (DicMoralScoreRecord.Count == 0)
             {
-                MsgBox.Show("本學年度學期無相關資料");
+                MsgBox.Show("本學期尚未有老師輸入");
                 return false;
             }
 
